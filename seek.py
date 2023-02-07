@@ -37,18 +37,18 @@ def filter_items(item: Path, filters: Filters) -> bool:
         for i in item.parents:
             if i.name.startswith('.'):
                 return False
-    if filters.minimumsize is not None and item_size < filters.minimumsize:
+    if filters.minimumsize and item_size < filters.minimumsize:
         return False
-    if filters.maximumsize is not None and filters.maximumsize < item_size:
+    if filters.maximumsize and filters.maximumsize < item_size:
         return False
-    if filters.substring is not None and filters.substring not in item.name:
+    if filters.substring and filters.substring not in item.name:
         return False
     return True
 
 
 def scan_folders(filters: Filters):
     path: Path = Path(filters.path)
-    items: [str] = path.glob(filters.extension) if filters.nonrecursive else path.rglob(filters.extension)
+    items = path.glob(filters.extension) if filters.nonrecursive else path.rglob(filters.extension)
 
     print("{:<20} {:<10}".format('Size in Bytes', 'File'))
     for i in items:
