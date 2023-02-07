@@ -1,5 +1,4 @@
 Simple file searcher script made in python
 
 TODO: 
-- better code organization and reability  
-- remove children of hidden folders when -nh flag is set to True
+- it is working in windows, have to test and adapt for linux too
