@@ -1,3 +1,4 @@
+import math
 from argparse import ArgumentParser
 from pathlib import Path
 import os
@@ -13,6 +14,7 @@ class Filters:
     nonrecursive: bool
     path: str
     substring: str
+    displaysize: str
 
     def __init__(self, dictionary):
         for k, v in dictionary.items():
@@ -49,11 +51,25 @@ def filter_items(item: Path, filters: Filters) -> bool:
 def scan_folders(filters: Filters):
     path: Path = Path(filters.path)
     items = path.glob(filters.extension) if filters.nonrecursive else path.rglob(filters.extension)
+    size_header: str = 'Size in Bytes'
+    divisor: float = 1
 
-    print("{:<20} {:<10}".format('Size in Bytes', 'File'))
+    if filters.displaysize:
+
+        if filters.displaysize.lower().startswith('k'):
+            size_header = 'Size in KiloBytes'
+            divisor = 1e3
+        elif filters.displaysize.lower().startswith('m'):
+            size_header = 'Size in MegaBytes'
+            divisor = 1e6
+        elif filters.displaysize.lower().startswith('g'):
+            size_header = 'Size in GigaBytes'
+            divisor = 1e9
+
+    print("{:<20} {:<10}".format(size_header, 'File'))
     for i in items:
         if filter_items(i, filters):
-            size = os.stat(i).st_size
+            size: int = math.ceil(os.stat(i).st_size / divisor)
             file_path = os.path.abspath(i)
             print("{:<20} {:<10}".format(size, file_path))
 
@@ -74,6 +90,7 @@ def read_arguments() -> Filters:
     parser.add_argument('-s', '--substring',
                         help='defines a string that must be contained by the file or directory name',
                         metavar='string', type=str)
+    parser.add_argument('-ds', '--displaysize', help='b: bytes(default), k:kilobytes, m: megabytes, g: gigabytes'),
 
     args = vars(parser.parse_args())
     filters: Filters = Filters(args)
